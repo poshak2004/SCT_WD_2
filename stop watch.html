@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch with Lap Recording</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .stopwatch-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .time-display {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            flex: 1;
+        }
+        .start { background-color: #4CAF50; color: white; }
+        .pause { background-color: #ff9800; color: white; }
+        .reset { background-color: #f44336; color: white; }
+        .lap { background-color: #2196f3; color: white; }
+        button:hover { opacity: 0.8; }
+        .laps {
+            text-align: left;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        .lap-time {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container">
+        <div class="time-display" id="timeDisplay">00:00:00.00</div>
+        <div class="buttons">
+            <button class="start" onclick="startStopwatch()">Start</button>
+            <button class="pause" onclick="pauseStopwatch()">Pause</button>
+            <button class="lap" onclick="recordLap()">Record Lap</button>
+            <button class="reset" onclick="resetStopwatch()">Reset</button>
+        </div>
+        <div class="laps" id="laps"></div>
+    </div>
+
+    <script>
+        let startTime, intervalId;
+        let elapsedTime = 0;
+        let isRunning = false;
+        let lapCount = 0;
+
+        function formatTime(ms) {
+            let milliseconds = Math.floor((ms % 1000) / 10);
+            let seconds = Math.floor((ms / 1000) % 60);
+            let minutes = Math.floor((ms / (1000 * 60)) % 60);
+            let hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(2, '0')}`;
+        }
+
+        function updateDisplay() {
+            const timeDisplay = document.getElementById("timeDisplay");
+            const currentTime = Date.now() - startTime + elapsedTime;
+            timeDisplay.textContent = formatTime(currentTime);
+        }
+
+        function startStopwatch() {
+            if (!isRunning) {
+                startTime = Date.now();
+                intervalId = setInterval(updateDisplay, 10);
+                isRunning = true;
+            }
+        }
+
+        function pauseStopwatch() {
+            if (isRunning) {
+                clearInterval(intervalId);
+                elapsedTime += Date.now() - startTime;
+                isRunning = false;
+            }
+        }
+
+        function resetStopwatch() {
+            clearInterval(intervalId);
+            elapsedTime = 0;
+            isRunning = false;
+            lapCount = 0;
+            document.getElementById("timeDisplay").textContent = "00:00:00.00";
+            document.getElementById("laps").innerHTML = "";
+        }
+
+        function recordLap() {
+            if (isRunning) {
+                lapCount++;
+                const lapsContainer = document.getElementById("laps");
+                const currentTime = Date.now() - startTime + elapsedTime;
+                const lapTime = formatTime(currentTime);
+                const lapElement = document.createElement("div");
+                lapElement.className = "lap-time";
+                lapElement.textContent = `Lap ${lapCount}: ${lapTime}`;
+                lapsContainer.appendChild(lapElement);
+            }
+        }
+    </script>
+</body>
+</html>
